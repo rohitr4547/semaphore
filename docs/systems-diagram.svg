@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" font-family="Helvetica, Arial, sans-serif" font-size="15">
+  <title>Semaphore systems diagram</title>
+  <desc>World state in the engine; player input and agent actions both pass through validation; the agent sees only a filtered view of its own side; feedback returns through animation, the signal board and traces.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" fill="#ffffff"/>
+  <text x="40" y="44" font-size="26" font-weight="700" fill="#1b2a2f">Semaphore: systems and the agent's knowledge boundary</text>
+
+  <!-- World state -->
+  <rect x="40" y="80" width="340" height="360" rx="10" fill="#eef4f6" stroke="#2f6b7a" stroke-width="2"/>
+  <text x="60" y="112" font-size="18" font-weight="700" fill="#2f6b7a">1. WORLD STATE (engine owns it)</text>
+  <text x="60" y="142">• tracks, sidings, the shared crossing</text>
+  <text x="60" y="168">• both sides' trains, destinations,</text>
+  <text x="74" y="190">deadlines</text>
+  <text x="60" y="216">• schedule of future arrivals, seed</text>
+  <text x="60" y="242">• crossing lock and beats remaining</text>
+  <text x="60" y="268">• signals this round, history</text>
+  <text x="60" y="294">• beat (0–24), shared score</text>
+  <text x="60" y="334" fill="#555">Deterministic TypeScript engine.</text>
+  <text x="60" y="358" fill="#555">Advances one beat only after both</text>
+  <text x="60" y="380" fill="#555">sides have committed.</text>
+
+  <!-- Validation -->
+  <rect x="470" y="300" width="330" height="140" rx="10" fill="#fff6e5" stroke="#c98a12" stroke-width="2"/>
+  <text x="490" y="332" font-size="18" font-weight="700" fill="#8a5c00">4. VALIDATION</text>
+  <text x="490" y="360">• train belongs to that side? siding reachable?</text>
+  <text x="490" y="384">• interlock: no entry to an occupied crossing</text>
+  <text x="490" y="408">• invalid, unparseable or timed-out agent call</text>
+  <text x="504" y="428">→ labelled safety hold, logged separately</text>
+
+  <!-- Player -->
+  <rect x="890" y="80" width="350" height="190" rx="10" fill="#eef7ee" stroke="#3c7d3c" stroke-width="2"/>
+  <text x="910" y="112" font-size="18" font-weight="700" fill="#2f6a2f">2. PLAYER INPUT</text>
+  <text x="910" y="140">sees: own side, crossing, both signals,</text>
+  <text x="910" y="162">route preview, score</text>
+  <text x="910" y="194">does: one signal (of four), then select a</text>
+  <text x="910" y="216">train, set its route, hold or depart</text>
+  <text x="910" y="248" fill="#555">mouse; keys 1–4 for signals</text>
+
+  <!-- Agent -->
+  <rect x="890" y="430" width="350" height="230" rx="10" fill="#f3eefa" stroke="#6a4c9c" stroke-width="2"/>
+  <text x="910" y="462" font-size="18" font-weight="700" fill="#4f347c">3. AGENT: partner dispatcher</text>
+  <text x="910" y="490">context = viewFor(partner side):</text>
+  <text x="924" y="512">its trains and deadlines, crossing state,</text>
+  <text x="924" y="534">both signals, last 8 rounds, beat, score</text>
+  <text x="910" y="564">actions: send_signal(signal)</text>
+  <text x="988" y="586">commit(train, siding, hold|depart)</text>
+  <text x="910" y="616" fill="#555">gemini-3.5-flash-lite via Cloudflare Worker</text>
+  <text x="910" y="638" fill="#555">6 s timeout · ≤ 60 calls per shift</text>
+
+  <!-- Knowledge boundary -->
+  <rect x="874" y="416" width="382" height="260" rx="14" fill="none" stroke="#b3261e" stroke-width="3" stroke-dasharray="12 8"/>
+  <rect x="420" y="478" width="440" height="66" rx="6" fill="#fdeceb"/>
+  <text x="432" y="500" font-weight="700" fill="#b3261e">KNOWLEDGE BOUNDARY (dashed frame)</text>
+  <text x="432" y="522" fill="#b3261e">The agent never receives the player's queue or</text>
+  <text x="432" y="540" fill="#b3261e">deadlines, future arrivals, the schedule, the seed.</text>
+
+  <!-- Feedback -->
+  <rect x="40" y="480" width="340" height="180" rx="10" fill="#f4f4f4" stroke="#666" stroke-width="2"/>
+  <text x="60" y="512" font-size="18" font-weight="700" fill="#333">5. FEEDBACK</text>
+  <text x="60" y="540">• animated trains, switches, crossing light</text>
+  <text x="60" y="564">• signal board; per-beat log line</text>
+  <text x="74" y="584">("Partner held for your Urgent")</text>
+  <text x="60" y="608">• score, beat counter, end screen</text>
+  <text x="60" y="632">• trace file → evaluation (BI, QA)</text>
+
+  <!-- Arrows -->
+  <path d="M380 200 L890 170" fill="none" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
+  <text x="560" y="174" fill="#333">player's view (own side only)</text>
+  <path d="M1000 270 L760 300" fill="none" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
+  <text x="860" y="300" fill="#333">input</text>
+  <path d="M380 400 C 480 700, 760 700, 890 610" fill="none" stroke="#6a4c9c" stroke-width="2" marker-end="url(#a)"/>
+  <text x="560" y="672" fill="#4f347c">viewFor(): filtered view</text>
+  <path d="M890 500 L800 430" fill="none" stroke="#6a4c9c" stroke-width="2" marker-end="url(#a)"/>
+  <text x="808" y="462" fill="#4f347c">proposed</text>
+  <path d="M470 370 L382 340" fill="none" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
+  <text x="395" y="300" fill="#333">valid actions</text>
+  <path d="M210 440 L210 478" fill="none" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
+</svg>
