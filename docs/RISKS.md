@@ -1,3 +1,5 @@
+AI use: Claude and ChatGPT helped me brainstorm related games, draft and structure this document and revise its wording. The design decisions marked as mine are mine.
+
 # Semaphore: Risk Profile and Initial Risk Register
 
 **Status: Initial (G1).**
@@ -11,7 +13,7 @@
 | Technology | Medium | Proven in my midterm: model calls to `gemini-3.5-flash-lite`, a bounded player interface, timeouts and failed-call accounting. I have built browser games before (Slot Racer). Unverified: calling the model from a Cloudflare Worker. | – |
 | Team | Medium | Agent roles reuse artifacts that worked in my midterm (implementation agent, rule-change skill, read-only reviewer). New: Art Lead and release skills. I work alone, so my own capacity is the limit. | – |
 | Genre / Mechanics | **High** | The central mechanic (simultaneous commit on one shared crossing, four signals) is untested. A fixed alternation might solve every shift, which would make signals pointless. | Paper prototype (task 1) and a solver comparison of alternation vs best play (task 3) before building the client; change traffic rules if alternation wins. |
-| Timeline | **High** | A first playable with a working agent and an external playtest is due at the combined G2/G3 review, with Thanksgiving in between. | Build in the order engine → scripted partner → agent → client; greybox before polish; the cut list in GDD §10. |
+| Timeline | **High** | A deployed model call with a forced-timeout fallback is due Nov 23, and a first playable with a working agent and an external playtest at the combined G2/G3 review on Nov 30 (recording Nov 28), with Thanksgiving in between: about two weeks. | Build in the order engine → scripted partner → agent → client; greybox before polish; the cut list in GDD §10. |
 
 **Do the Highs share a cause?** Yes. Both depend on the same unproven core loop: if the shared-crossing decision is not interesting, the time spent on everything else is wasted. That is why the first two tasks test the loop on paper and with a solver before any client work.
 
@@ -23,5 +25,5 @@
 | If the model partner leaks or asks for hidden information | Adversarial test, trace review | Medium / Low | QA | `viewFor` is the only path to the agent; test that the hidden queue is absent | – | Task 6 |
 | If the Worker cannot call the model by task 5 | Spike fails | Medium / Medium | Tech Lead | Try both authentication routes | Run the model partner from the Node harness only; the web build uses the scripted partner | Task 5 |
 | If model latency makes rounds feel slow | Added waiting > 3 s median in the first build | Medium / Low | Tech Lead | Start calls when each phase opens | Shorter prompt; fewer history rounds | Task 7 |
-| If I cannot recruit an external playtester before G2 | No session booked by Nov 30 | High / Low | Producer | Ask classmates at the G1 review | Remote session over screen share | Nov 30 |
+| If I cannot recruit an external playtester before G2 | No session booked by Nov 25 | High / Low | Producer | Ask classmates at the G1 review | Remote session over screen share | Nov 25 |
 | If the model partner performs no better than the scripted one | Automated comparison | Low for the project / Medium | BI | Report it as a result | The game ships with whichever partner players prefer | Task 8 |

@@ -1,3 +1,5 @@
+AI use: Claude and ChatGPT helped me brainstorm related games, draft and structure this document and revise its wording. The design decisions marked as mine are mine.
+
 # Semaphore: G1 Concept pitch (deck content and recording script)
 
 Target length: about 4 min 20 s at a relaxed pace (≈ 620 words). Each slide lists what is on screen, then what I say. Edit the spoken lines into your own words before recording.

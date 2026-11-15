@@ -12,5 +12,7 @@ A small animated co-op game: you and an AI partner run opposite sides of a rail 
 | [Risk Profile and Register](docs/RISKS.md) | Six dimensions with evidence and mitigations |
 | [Systems diagram](docs/systems-diagram.svg) | State, input, agent context and actions, validation, feedback, and the agent's knowledge boundary |
 | [G1 pitch content and script](docs/G1-PITCH.md) | Slide-by-slide content for the recording |
+| [G1 deck](https://claude.ai/artifact/QL1QoyEEbc8uGjKhUK5ZWK) | The slides presented in the recording |
+| [G1 post text](docs/G1-POST.md) | Draft of the discussion post |
 
 AI use: Claude and ChatGPT helped brainstorm related games, draft these documents and revise wording. Decisions marked as mine in the Project Plan are mine.

@@ -1,3 +1,5 @@
+AI use: Claude and ChatGPT helped me brainstorm related games, draft and structure this document and revise its wording. The design decisions marked as mine are mine.
+
 # Semaphore: Configuration Document
 
 **Status: Initial (G1).** Marked **[decided]**, **[proposed]** or **[open]** as in the GDD. Nothing here is implemented. Executable artifacts listed below are planned paths; they do not exist yet.
@@ -28,6 +30,20 @@
 3. Simultaneous requests with no *Urgent*: the side with the earlier deadline goes; on a tie, the left side goes.
 
 The baseline must be competent: if it matches the model, that is a real result, not a failure of the project.
+
+### Common manifest (required fields for the executable artifact)
+
+Planned file: `agent/manifest.json`, pointing to the native files above. **[proposed]**
+
+| Field | Value |
+|---|---|
+| Purpose and available tools | Dispatch the partner side; `send_signal`, `commit` |
+| Prohibited actions | Changing any state directly; acting for the player's side; reading the schedule, seed or other side; any action outside the two tools |
+| Memory policy and named context sources | In-shift history only (last 8 rounds); context comes only from `viewFor(side)` |
+| Model choice and prompts | `gemini-3.5-flash-lite`; `agent/prompts/dispatcher-v1.md` |
+| Named failure modes and evaluation cases | Hidden-information request; repeated contested departures; ignoring *Urgent*; prose reply; timeout. One test each in `tests/agent/` |
+| Logging policy and human override points | Per-call trace as above; pause; developer swap to the scripted partner |
+| Test command and CI workflow path | `npm test`; `.github/workflows/ci.yml` |
 
 ## 2. Budgets
 

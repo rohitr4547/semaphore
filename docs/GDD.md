@@ -1,3 +1,5 @@
+AI use: Claude and ChatGPT helped me brainstorm related games, draft and structure this document and revise its wording. The design decisions marked as mine are mine.
+
 # Semaphore: Game Design Document
 
 **Status: Initial (G1).** Statements are marked **[decided]** (my decision as Creative Director), **[proposed]** (a recommendation I have not yet accepted) or **[open]** (an unresolved question, with how I plan to answer it). Nothing here is implemented yet.
