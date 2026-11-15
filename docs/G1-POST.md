@@ -5,11 +5,11 @@ AI use: Claude and ChatGPT helped me research related games, structure the docum
 **Semaphore** is a small animated co-op game. You and an AI partner run opposite sides of a rail junction, share one stretch of track, and can only talk through four signals. The game comes down to one moment, over and over: do I send my train now, or let my partner go first?
 
 - Recording (about 4.5 min): [link]
-- Deck: [link]
-- Initial GDD: [repo]/docs/GDD.md
-- Initial Configuration Document (agent spec, budgets, evaluation plan, role coverage): [repo]/docs/CONFIGURATION.md
-- Initial Project Plan (gate dates, first tasks through G2, my decisions vs my agents' recommendations): [repo]/docs/PROJECT-PLAN.md
-- Risk Profile and Initial Risk Register: [repo]/docs/RISKS.md
+- Deck: https://claude.ai/artifact/QL1QoyEEbc8uGjKhUK5ZWK
+- Initial GDD: https://github.com/rohitr4547/semaphore/blob/main/docs/GDD.md
+- Initial Configuration Document (agent spec, budgets, evaluation plan, role coverage): https://github.com/rohitr4547/semaphore/blob/main/docs/CONFIGURATION.md
+- Initial Project Plan (gate dates, first tasks through G2, my decisions vs my agents' recommendations): https://github.com/rohitr4547/semaphore/blob/main/docs/PROJECT-PLAN.md
+- Risk Profile and Initial Risk Register: https://github.com/rohitr4547/semaphore/blob/main/docs/RISKS.md
 
 **Agent hypothesis.** A partner that chooses its signal and whether to hold or depart, from its own side's view only, should make players feel it is cooperating: changing who goes first when deadlines change. I compare it with a competent scripted dispatcher that has the same view and actions. The playtest question: when you both wanted the crossing, could you tell why your partner went or waited, and did it change your next signal?
 
