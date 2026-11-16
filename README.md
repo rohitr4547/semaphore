@@ -8,20 +8,17 @@ An animated co-op railway puzzle about deciding when to send a train and when to
 
 | Submission item | File |
 |---|---|
-| Deck with speaker notes | [Semaphore-G1-Concept-Pitch.pptx](presentation/Semaphore-G1-Concept-Pitch.pptx) |
-| PDF viewing copy | [Semaphore-G1-Concept-Pitch.pdf](presentation/Semaphore-G1-Concept-Pitch.pdf) |
-| Recording script and timings | [G1-PITCH.md](docs/G1-PITCH.md) |
+| Recording (4:48) | [Google Drive](https://drive.google.com/drive/folders/1Qo5Je9KF5OvJML6riyp-oJ7zH3i7zzIp?usp=sharing) (Columbia accounts) |
+| Deck | [Semaphore-G1-Concept-Pitch.pdf](presentation/Semaphore-G1-Concept-Pitch.pdf) |
 | Initial Game Design Document | [GDD.md](docs/GDD.md) |
 | Initial Configuration Document | [CONFIGURATION.md](docs/CONFIGURATION.md) |
 | Initial Project Plan | [PROJECT-PLAN.md](docs/PROJECT-PLAN.md) |
 | Six-dimension Risk Profile | [RISKS.md](docs/RISKS.md) |
 | Systems and knowledge boundary | [systems-diagram.svg](docs/systems-diagram.svg) |
 | References and reuse positions | [SOURCES.md](docs/SOURCES.md) |
-| Discussion post draft | [G1-POST.md](docs/G1-POST.md) |
-| Final hand-in check | [SUBMISSION-CHECKLIST.md](docs/SUBMISSION-CHECKLIST.md) |
 
 ## Recording
 
-**Required before posting:** record the presentation, upload it, test access as a viewer and add the recording URL here and in the discussion post. A deck or script is not a recording.
+The G1 pitch recording (4:48) is on [Google Drive](https://drive.google.com/drive/folders/1Qo5Je9KF5OvJML6riyp-oJ7zH3i7zzIp?usp=sharing), viewable with a Columbia account.
 
 The requested decision is approval for a small prototype and a test of the agent hypothesis. The comparison may favour the scripted partner. That is a valid result if the observations and limitations are clear.
