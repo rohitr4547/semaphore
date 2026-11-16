@@ -1,93 +1,108 @@
-AI use: Claude and ChatGPT helped me brainstorm related games, draft and structure this document and revise its wording. The design decisions marked as mine are mine.
+# Semaphore: Initial Configuration Document
 
-# Semaphore: Configuration Document
+AI use: Claude and ChatGPT helped me explore concepts and draft the initial documents. ChatGPT helped review this revision for clarity, consistency and rubric coverage. I remain responsible for the design, evidence and final submission.
 
-**Status: Initial (G1).** Marked **[decided]**, **[proposed]** or **[open]** as in the GDD. Nothing here is implemented. Executable artifacts listed below are planned paths; they do not exist yet.
+**Gate 1 concept, 15 November 2026.** All runtime components, paths and tests below are planned. This is a configuration specification, not evidence of a deployed agent. I have selected the observation boundary and comparison design. Mechanics and stack remain provisional until the first feasibility checks.
 
-## 1. In-game agent: the partner dispatcher
+## 1. Runtime contract
 
-| Field | Specification |
+| Item | Planned configuration |
 |---|---|
-| Purpose | Dispatch the partner's side of the junction: one signal, then one route and hold-or-depart, per round. **[decided]** |
-| Interface (executable artifact) | A function-calling interface with two tools, `send_signal(signal)` and `commit(train_id, siding, hold_or_depart)`, defined in `engine/agent-interface.ts` with a JSON schema. This is the project's required executable extension artifact. **[proposed]** |
-| Context it receives | Its own side: trains in its waiting positions, their destinations and deadlines (beats left), its sidings' occupancy; the public crossing state (free / occupied, by whose train, beats remaining); both signals this round; the last 8 rounds of public history (signals, resolved moves, deliveries); the beat number and the score. **[decided]** |
-| Knowledge boundary | Never receives: the other side's queue or deadlines, future arrivals, the schedule, the seed, the engine state object, other players' traces or any source file. The agent's view is built by one function, `viewFor(side)`, the only path from engine to agent. **[decided]** |
-| Actions | Exactly the tools above. The engine rejects any train the side does not hold, any siding not reachable, any value outside the schema. **[decided]** |
-| Memory | The bounded in-shift history above. No memory across shifts in the first playable. **[decided]** |
-| Model and settings | `gemini-3.5-flash-lite`, provider default temperature, at most 200 output tokens, JSON-only reply. **[proposed]** (Basis: used for the Zork midterm, 1.4–1.7 s per call measured there.) |
-| System instructions | States the goal (shared score), the four signals and their meanings, the interlock rule and the reply format. Contains no strategy hints that the scripted partner does not also encode. Versioned in `agent/prompts/dispatcher-v1.md`. **[proposed]** |
-| Validation | The engine validates every action. An invalid action, an unparseable reply or a call failure becomes a **safety hold** (no departure; no signal, shown as "—"), clearly labelled on screen and in the trace, and counted separately from the agent's real decisions. Never a substitute move. **[decided]** |
-| Timeout / retry / spend | Timeout 6 s per call; no retry within a round; at most 60 calls per shift and 200 per session; a session stops calling the model once its cap is reached, and the shift continues with safety holds. **[proposed]** |
-| Logging | Each call: round, phase, prompt version, the agent's view (hashed if long), reply, validated action or rejection reason, latency, tokens. One trace file per shift. **[proposed]** |
-| Human override | The player can pause. A developer flag swaps the partner for the scripted dispatcher mid-session (used for playtests, logged). **[proposed]** |
-| Failure modes to test | Asks for or hallucinates hidden information; departs into a contested crossing every beat; ignores *Urgent*; replies with prose; slow replies. Each becomes a test case. **[proposed]** |
-| Evaluation | See §3. **[proposed]** |
+| Job | Control the partner's signal, local receiving switch and hold-or-depart decision. |
+| Model | `gemini-3.5-flash-lite` through the global Vertex AI endpoint. Verify model identifier, access and deployed authentication in the spike. |
+| Phase 1 | `send_signal(signal)`. Context contains the agent's local state and past public history. It contains neither side's unrevealed current signal. |
+| Phase 2 | `commit(train_id_or_null, receiving_siding, hold_or_depart)`. Context additionally contains both revealed signals. It never contains the human's current commit. |
+| Memory | Last eight resolved rounds of role-filtered history. No cross-shift notes or learning in the first playable. |
+| Model settings | Provider default temperature, structured JSON action. Start with minimal/disabled reasoning where supported, maximum 200 total billed output tokens per call. Verify actual response and reasoning usage in the spike. |
+| Prompts | Versioned rules, public signal meanings, shared-score goal and schema. Planned path: `agent/prompts/dispatcher-v1.md`. No scenario solution or privileged strategy hints. |
+| Planned executable artifact | `engine/agent-interface.ts` plus `agent/manifest.json` and the deployed request handler. These files do not exist at G1. |
 
-### Scripted baseline (same view, same tools) **[decided]**
+### Observation boundary
 
-1. Signal *Urgent* if its earliest train has ≤ 3 beats to its deadline; otherwise *Request crossing* if that train must cross; otherwise *Ready to receive*.
-2. Commit its earliest-deadline train. Depart if the crossing is free and the partner did not signal *Urgent* or *Please wait*; otherwise hold.
-3. Simultaneous requests with no *Urgent*: the side with the earlier deadline goes; on a tie, the left side goes.
+`viewFor(side, phase)` returns local queues and current backlog count, local train destinations and deadlines, local receiving occupancy, the public crossing (including the marker on an already-departed train), revealed signals, beat and shared score. It includes only resolved public actions from history, not either side's historic private queues or deadlines. The current opposite signal is absent until the reveal phase.
 
-The baseline must be competent: if it matches the model, that is a real result, not a failure of the project.
+The model receives no human queue/deadlines, future arrivals, schedule, seed, hidden commits, source files, shell, solver or evaluator traces. Developer traces may include full state for offline verification, but those traces never enter a player's view. Legal actions derive from the role's own state. An invalid-action message must not reveal hidden occupancy or hidden objects.
 
-### Common manifest (required fields for the executable artifact)
+### Validation and failure policy
 
-Planned file: `agent/manifest.json`, pointing to the native files above. **[proposed]**
+The engine checks schema, phase, session, beat and action ownership before changing state. The interlock resolves occupancy and simultaneous requests after both commits. A blocked but legal departure counts as a conflict or wait, not an invalid model action.
 
-| Field | Value |
-|---|---|
-| Purpose and available tools | Dispatch the partner side; `send_signal`, `commit` |
-| Prohibited actions | Changing any state directly; acting for the player's side; reading the schedule, seed or other side; any action outside the two tools |
-| Memory policy and named context sources | In-shift history only (last 8 rounds); context comes only from `viewFor(side)` |
-| Model choice and prompts | `gemini-3.5-flash-lite`; `agent/prompts/dispatcher-v1.md` |
-| Named failure modes and evaluation cases | Hidden-information request; repeated contested departures; ignoring *Urgent*; prose reply; timeout. One test each in `tests/agent/` |
-| Logging policy and human override points | Per-call trace as above; pause; developer swap to the scripted partner |
-| Test command and CI workflow path | `npm test`; `.github/workflows/ci.yml` |
+A failed signal call produces a neutral “no signal / call failed” indicator. It does not invent a request or Urgent. A failed commit produces a labelled safety hold, preserving the previous receiving switch. Invalid human input stays in the planning phase with an actionable error. Failed model actions count in call/failure totals. No retry or hidden model substitution is allowed within that phase.
 
-## 2. Budgets
+Timeout: **6 seconds per call**, with cancellation where supported and late responses discarded using session/beat/phase identifiers. At most **48 call attempts per shift** and **144 per three-shift session**. There are exactly two possible calls per beat over 24 beats. Once a cap is reached, stop requesting and use labelled safety holds. The shift still ends at beat 24. Pause and resume must not replay a charged call.
 
-| Budget | Number | Basis |
+The player can pause or exit. Swapping the partner policy is a developer-only diagnostic and marks the trace as mixed-policy, excluded from the primary comparison.
+
+## 2. Scripted dispatcher
+
+The baseline gets the same filtered view and uses the same action schema. It can inspect only its own deadlines.
+
+1. Choose the local earliest-deadline waiting train. Signal Please wait if the receiving berth is blocked, otherwise Urgent if the train is within three beats of its deadline, Request crossing if a train is waiting, otherwise Ready to receive.
+2. Set the local receiving switch to match a visible incoming train. Otherwise keep its previous valid setting.
+3. Hold when the crossing is occupied or no train is ready. Respect Please wait. Yield to an opposing Urgent unless its own signal is also Urgent.
+4. With two Requests or two Urgents, use a **public alternating priority**, based on the last departure side. Start with left priority. Both dispatchers can reconstruct this without seeing the other queue.
+5. Depart when permitted by these rules. If both nevertheless depart, apply the same engine conflict rule as for the model.
+
+The policy is responsive but fixed. The experiment asks whether contextual model decisions add value beyond those explicit rules. It does not claim that scripted partners cannot coordinate.
+
+## 3. Budgets and basis
+
+Prices checked **15 November 2026** on Google's Standard, global pricing table: **$0.30 input and $2.50 output per million tokens** for Gemini 3.5 Flash-Lite. Source: https://cloud.google.com/model-garden/pricing . No caching, batch or priority discount assumed.
+
+| Quantity | Planning value | Basis and limit |
 |---|---|---|
-| Calls per shift | 48 (2 per round × 24 rounds) | Signal phase and commit phase each need one call. |
-| Input tokens per call | ≈ 1,500 | Rules and format ≈ 600; state ≈ 300; 8 rounds of history ≈ 500; schema ≈ 100. To be measured on the first build. |
-| Output tokens per call | ≈ 60 | One JSON action with a short reason. |
-| **Cost per shift** | **≈ $0.03** | 48 × (1,500 × $0.30 + 60 × $2.50) / 1,000,000 = $0.029, at the Vertex AI Standard price for `gemini-3.5-flash-lite`, read 2026-11-04 (my midterm's `prices.json`). |
-| **Cost per session** (3 shifts) | **≈ $0.09** | 3 × $0.029. |
-| **Latency per call** | **≈ 1.5 s median, 6 s timeout** | Midterm measurements for the same model: 1.40–1.72 s mean per call. |
-| Added waiting per round | ≈ 0 s median, ≤ 6 s worst | Each call starts when its phase opens and runs while the player is deciding (players take several seconds); the beat waits only if the agent is slower than the player. To be verified in the first build. |
-| Evaluation spend before G2 | ≤ $2 | 5 schedules × 5 seeds × model partner ≈ 25 shifts × $0.03 ≈ $0.75, plus development and playtests. Hard stop at $5 of credits. |
+| Calls per shift / session | 48 / 144 | 2 phases × 24 beats, 3 shifts. Attempts include failures. |
+| Typical tokens/call | 1,500 input, 60 output | Estimate: rules 600, view 300, history 500, schema 100. No Semaphore measurement yet. |
+| Typical shift / session | $0.0288 / $0.0864 | `48 × (1500 × 0.30 + 60 × 2.50) / 1e6`. |
+| Output-cap scenario | $0.0456 / $0.1368 | Same estimated input, 200 billed output tokens per call. This is conditional, not an absolute cost bound. |
+| Three-times-input sensitivity | $0.072 / $0.216 | 4,500 input and 60 output tokens per call. |
+| Latency basis | Prior midterm means 1.40–1.72 s/call | Self-reported in supplied midterm documents. Not a Semaphore benchmark and not a median. |
+| Latency target | p95 ≤ 3 s/call, 6 s timeout | Measure at least 20 deployed calls. Target extra wait after human input: ≤ 2 s median. |
+| Worst additional round wait | Up to 12 s | Two sequential 6 s phase timeouts. At 1.5 s per call, 48 serial calls represent about 72 s of model time before overlap. |
+| Automated comparison | 50 model shifts, about $1.44 typical | 5 schedules × 2 fixed partner policies × 5 repetitions. 50 paired scripted shifts cost no model tokens. |
+| G2 working budget | $3 target, $5 stop threshold | Allows the comparison plus limited spikes/playtests. Reserve estimated request cost before dispatch, cap prompt length, include unknown usage conservatively. Provider billing can lag. |
 
-The largest uncertainty in these numbers is the input size: if history makes prompts 3× larger, cost per session is still under $0.30.
+The main uncertainties are prompt growth, billed reasoning/output tokens, cold starts and provider latency. Record actual usage and reprice before the first benchmark. Hosting, tax and unknown charges on client-abandoned calls are outside the token estimate and must be disclosed separately.
 
-## 3. Evaluation plan (proposed tests and baseline, G1 level)
+## 4. Architecture and deployment
 
-- **Deterministic tests** (no model): rules and interlock, scoring, schedules, `viewFor` never containing the other side's queue, safety hold on invalid or failed calls, the round waiting for both commits.
-- **Automated comparison:** model partner vs scripted partner, each paired with the same fixed "player" policies (an earliest-deadline player and a stubborn player who never yields), on 3 tuning and 2 **held-out** schedules × 5 seeds. Report deliveries, lateness, conflicting requests, yields, invalid actions, safety holds, latency, tokens and cost. Held-out schedules are frozen before any prompt tuning, as in my midterm.
-- **Human playtests:** each player plays one shift with each partner, order alternated, without being told which is which. Questions: *When you both wanted the crossing, could you tell why your partner went or waited? Did it change what you signalled next?* Record observations before interpretations (reader §5.9).
-- **Playtest question (G2):** When priorities conflict, can the player tell whether the partner yielded because of their signal, and does that change how they signal next?
+**Proposed:** a pure TypeScript engine, Vite canvas client, Node harness and a Cloudflare Worker backend. The published client sends action requests and receives a role-filtered view. The server owns the authoritative session. The client must not be the authority for the model's observation.
 
-## 4. Technology **[proposed, my decision pending]**
+Use isolated server session storage, proposed as a Durable Object per shift, with unique request IDs and bounded retained traces. Keep Vertex credentials in server secrets. A Google AI Studio key is a different API/authentication path and must not be described as Vertex authentication. Prove one chosen route in the deployed spike before committing to it.
 
-- **Engine:** pure TypeScript, deterministic and seedable, no DOM access, so the same code runs in the browser and in the Node test and evaluation harness.
-- **Client:** HTML canvas, TypeScript, Vite.
-- **Model calls:** a Cloudflare Worker (the course's taught publishing and AI-worker path) holds the credentials and forwards only the agent's view; the browser never sees a key.
-- **Hosting:** Cloudflare Pages for the static client.
-- **Open:** how the Worker authenticates to Vertex AI (a service-account token vs an AI Studio key). *Answer by:* a one-call spike in week 1. Fallback: the scripted partner only, with the model partner run from the Node harness.
+The fallback is a small Node server with server-held credentials and the same interface, subject to the course's deployment requirements. A scripted-only browser build can test mechanics, but **does not satisfy the deployed model checkpoint**. If deployment remains blocked, report the gap and request a Hold or agreed recovery plan rather than calling a local-only demo complete.
 
-## 5. Production agent team: role coverage (planned)
+## 5. Evaluation and verification
 
-I am Executive Producer and Creative Director. Agents recommend; I decide; the instructor approves gates.
+Declare three development schedules and two reserved schedules. Build them and validate feasibility before tuning. Freeze prompt, policy, schema and code versions before opening held-out results. Do not design or revise a schedule because it makes the model look better. A repeat after changes is a disclosed development run, not a fresh held-out test.
 
-| Role | Executable artifact (planned) | Purpose | Context | Tools / permissions | Output → recipient | Evaluation | My approval boundary |
-|---|---|---|---|---|---|---|---|
-| Producer | Claude Code with `.claude/skills/work-cycle/SKILL.md` | Turn the plan into weekly tasks and PPP drafts | GDD, plan, risk register | Read repo; write `docs/plan/` | Task list and PPP → me | Tasks have acceptance criteria | I accept every commitment and scope change |
-| Design Lead | `.claude/skills/rule-change/SKILL.md` (adapted from my midterm) | Specify rules, schedules, balance; propose playtest questions | GDD, playtest log | Read repo; write `docs/` | Rule changes with a failing test first → Tech Lead | Solver check on schedules | I approve every rule and schedule |
-| Tech Lead | Implementation agent with `CLAUDE.md` | Engine, client, Worker, harness | Repo | Edit code, run tests; no credentials; live calls only when I run them | Build and test evidence → QA | CI green; tests listed in §3 | I merge |
-| Art Lead | `.claude/skills/art-pass/SKILL.md` with `docs/art-style.md` | Readable shapes, colours (colour-blind safe), animation timing | Style guide, screenshots | Write `client/assets/` | SVG assets → Tech Lead | Readability check on screenshots | I accept the visual direction |
-| Narrative and Audio | Covered by the Design Lead skill | One-screen tutorial; CC0 sound selection | GDD | Write tutorial text | Text and sound list → Tech Lead | Playtest comprehension | I approve the text |
-| QA | `.claude/agents/rules-reviewer.md` (read-only, separate session) plus the test suite | Independent review; adversarial agent tests | Diffs, GDD, configuration | Read only | Findings → me | Findings answered in `REVIEW.md` | I decide each finding |
-| BI | `tools/evaluate.ts` and a report-writing session | Run the comparison and summarise with limitations | Traces | Read traces; write `results/` | Report → me and Design Lead | Numbers reproduce from traces | I decide what the results mean |
-| Publishing and Release | `wrangler.toml` and a release checklist skill | Deploy, write play instructions | Build | Deploy only when I run it | Public build and README → playtesters | A playtester can open and play | I approve each release |
+Automated comparison pairs both candidate dispatchers with the same two fixed partner policies: a signal-responsive dispatcher and an assertive dispatcher. Each condition uses the same schedules/seeds. Five repetitions measure live model variation; provider sampling may be unseeded. Report each policy's results separately. Full-information solver results are feasibility references, never a fair-information competitor.
 
-**Open:** the Art Lead and release skills are new; the others adapt artifacts that worked in my midterm. I will confirm each one is usable during week 1 before relying on it (Team risk).
+Record correct/on-time/late/wrong deliveries, total score, conflicts, public yield events, invalid actions, safety holds, failed/timeout calls, latency distributions, tokens and estimated cost. Preserve incomplete episodes and explain exclusions. A signal followed by a hold is association, not proof of intent or causation. If feasible, add a controlled no-signal ablation after the primary comparison.
+
+Recruit at least one external tester before G2, aiming for three. Each tries one shift per partner on matched scenarios, with order and schedule assignment alternated when there is more than one tester. One tester gives formative observations, not a preference estimate. Ask the playtest question in GDD §6, collect specific moments and keep identities private.
+
+### Planned deterministic checks
+
+Rule and scoring invariants, the two-beat crossing, contested departures, berth release order, overflow, successful completion and beat termination. Boundary tests compare states that differ only in the other queue, hidden schedule or commit and require identical agent views. Adversarial checks cover invalid ownership, malformed JSON, phase mismatch, timeout, stale responses, cross-session access and duplicate commits. CI runs these without provider keys. Planned commands and workflow paths are specifications until implementation exists.
+
+### Trace and manifest
+
+Planned `agent/manifest.json` records purpose, tools, prohibited actions, context sources, memory policy, model/settings, prompt hash, failure cases, logging, pause/override points, test command and CI workflow path (`.github/workflows/ci.yml`). Log exact role-filtered inputs in private evaluation evidence, outputs, validation, outcome, timing and usage. A hash alone cannot reproduce an action. Export only anonymised, credential-free traces.
+
+## 6. Agent team and human responsibility
+
+I act as Executive Producer and Creative Director. These are **planned responsibilities**, not a team of people or already-executed agents. I approve scope, rules, conclusions and releases. Agents prepare recommendations and evidence.
+
+| Role | Planned artifact and context | Permissions and output | Check and my decision |
+|---|---|---|---|
+| Producer | `.claude/skills/work-cycle/SKILL.md`, plan/risk log | Read repo, write task and PPP drafts | Dependencies/criteria inspectable. I accept commitments. |
+| Design Lead | `.claude/skills/rule-change/SKILL.md`, GDD and playtests | Propose rules, failing tests and schedules | Solver and playtest evidence. I approve rules. |
+| Tech Lead | `CLAUDE.md`, scoped implementation session | Edit engine/client/server, run offline tests. No credentials or autonomous paid calls. | QA review and CI. I accept code. |
+| Art Lead | `docs/art-style.md` and art-review task | Original track/signal assets and screenshots | Colour-plus-shape and readable previews. I accept presentation. |
+| Narrative / Audio | Design Lead task, tutorial and asset list | Draft onboarding, propose optional licensed sound | Comprehension and asset provenance. I approve text/assets. |
+| QA | Separate read-only `.claude/agents/rules-reviewer.md` | Inspect changes and tests, write findings, no instruction to approve | `REVIEW.md` responses. I decide each finding. |
+| BI | Planned `tools/evaluate.ts`, anonymised traces | Run approved budgeted comparisons, draft report | Recompute summaries from traces. I interpret findings. |
+| Publishing / Release | Proposed `wrangler.toml`, release checklist | Prepare build and deployment steps | Secrets/session checks and fresh-browser test. I authorise deployment. |
+
+Confirm each artifact in the first implementation cycle. Retain named session links and decisions in the eventual agent-team log. The manifest keeps every field the syllabus lists for the extension artifact.

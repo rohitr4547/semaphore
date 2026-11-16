@@ -1,18 +1,27 @@
 # Semaphore
 
-A small animated co-op game: you and an AI partner run opposite sides of a rail junction, share one crossing, and talk only through four signals.
+AI use: Claude and ChatGPT helped me explore concepts and draft the initial documents. ChatGPT helped review this revision for clarity, consistency and rubric coverage. I remain responsible for the design, evidence and final submission.
 
-**Status: concept (G1).** No code yet.
+An animated co-op railway puzzle about deciding when to send a train and when to let your partner go first.
 
-| Document | Purpose |
+**Status: Gate 1 concept.** No playable game, deployment or Semaphore benchmark exists yet. The repository contains planning documents only. Proposed paths and commands in the configuration are not implemented features.
+
+| Submission item | File |
 |---|---|
-| [Initial GDD](docs/GDD.md) | The game: player, loop, mechanics, scope, references, open questions |
-| [Initial Configuration Document](docs/CONFIGURATION.md) | The partner agent's specification, budgets, evaluation plan, production-role coverage |
-| [Initial Project Plan](docs/PROJECT-PLAN.md) | Gate dates, first tasks through G2, decisions and who made them |
-| [Risk Profile and Register](docs/RISKS.md) | Six dimensions with evidence and mitigations |
-| [Systems diagram](docs/systems-diagram.svg) | State, input, agent context and actions, validation, feedback, and the agent's knowledge boundary |
-| [G1 pitch content and script](docs/G1-PITCH.md) | Slide-by-slide content for the recording |
-| [G1 deck](https://claude.ai/artifact/QL1QoyEEbc8uGjKhUK5ZWK) | The slides presented in the recording |
-| [G1 post text](docs/G1-POST.md) | Draft of the discussion post |
+| Deck with speaker notes | [Semaphore-G1-Concept-Pitch.pptx](presentation/Semaphore-G1-Concept-Pitch.pptx) |
+| PDF viewing copy | [Semaphore-G1-Concept-Pitch.pdf](presentation/Semaphore-G1-Concept-Pitch.pdf) |
+| Recording script and timings | [G1-PITCH.md](docs/G1-PITCH.md) |
+| Initial Game Design Document | [GDD.md](docs/GDD.md) |
+| Initial Configuration Document | [CONFIGURATION.md](docs/CONFIGURATION.md) |
+| Initial Project Plan | [PROJECT-PLAN.md](docs/PROJECT-PLAN.md) |
+| Six-dimension Risk Profile | [RISKS.md](docs/RISKS.md) |
+| Systems and knowledge boundary | [systems-diagram.svg](docs/systems-diagram.svg) |
+| References and reuse positions | [SOURCES.md](docs/SOURCES.md) |
+| Discussion post draft | [G1-POST.md](docs/G1-POST.md) |
+| Final hand-in check | [SUBMISSION-CHECKLIST.md](docs/SUBMISSION-CHECKLIST.md) |
 
-AI use: Claude and ChatGPT helped brainstorm related games, draft these documents and revise wording. Decisions marked as mine in the Project Plan are mine.
+## Recording
+
+**Required before posting:** record the presentation, upload it, test access as a viewer and add the recording URL here and in the discussion post. A deck or script is not a recording.
+
+The requested decision is approval for a small prototype and a test of the agent hypothesis. The comparison may favour the scripted partner. That is a valid result if the observations and limitations are clear.

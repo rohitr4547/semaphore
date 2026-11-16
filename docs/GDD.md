@@ -1,120 +1,119 @@
-AI use: Claude and ChatGPT helped me brainstorm related games, draft and structure this document and revise its wording. The design decisions marked as mine are mine.
+# Semaphore: Initial Game Design Document
 
-# Semaphore: Game Design Document
+AI use: Claude and ChatGPT helped me explore concepts and draft the initial documents. ChatGPT helped review this revision for clarity, consistency and rubric coverage. I remain responsible for the design, evidence and final submission.
 
-**Status: Initial (G1).** Statements are marked **[decided]** (my decision as Creative Director), **[proposed]** (a recommendation I have not yet accepted) or **[open]** (an unresolved question, with how I plan to answer it). Nothing here is implemented yet.
+**Gate 1 concept, 15 November 2026.** This document specifies a prototype. There is no playable build or Semaphore performance evidence yet. **Selected** identifies the direction I have chosen. **Provisional** identifies mechanics to test. **Open** identifies a question with an owner and a check.
 
 ## 1. The X
 
-Semaphore is a small animated co-op game in which you and an AI partner run opposite sides of a rail junction, sharing one stretch of track and talking only through four signals, and you feel the satisfaction of getting a difficult handover right. **[decided]**
+Semaphore is an animated co-op game where you and an AI partner dispatch trains across one shared track, and you feel the satisfaction of getting a difficult handover right.
 
 ## 2. Player and motivation
 
-- **Player:** people who enjoy short co-op puzzle games such as *Overcooked*, *Keep Talking and Nobody Explodes* or *Hanabi*, playing alone on a laptop browser in sessions of about ten minutes. **[decided]**
-- **Motivation:** *Fellowship and social connection* first, *Challenge and mastery* second (Motivation Atlas groups; MDA's "fellowship" aesthetic, Hunicke et al. 2004). The dynamic I am relying on is interdependence: a goal that is "more difficult to achieve alone". **[decided]**
-- **Observable hypothesis:** if the game works, a playtester will hold their own train, without being told to, so the partner's urgent train can cross, and afterwards can say why they did it. A second sign: the player changes which signal they send after seeing how the partner responded to the last one. **[decided as the hypothesis; untested]**
+I am designing for people who enjoy short cooperative puzzles, playing on a laptop browser. Fellowship is the main motivation, with mastery coming from making better dispatch decisions. A shift should take roughly 4–8 minutes, subject to testing. Three shifts form an optional longer session.
 
-## 3. Core loop
+My observable hypothesis is that a player will voluntarily hold a train after seeing the partner's urgent signal, then explain the trade-off afterwards. I also want to see whether the player changes their next signal after a misunderstanding. These are playtest hypotheses, not evidence that the experience already works.
 
-One round, about 10–20 seconds of real time:
+## 3. Pillars and alternatives
 
-1. **Act (signal):** you see your trains, their destinations and deadlines, and send one signal. The partner sends one at the same time.
-2. **Respond (reveal):** both signals appear on the signal board.
-3. **Interpret and act (commit):** you pick a train, set its route (a preview highlights the path and travel time) and choose *hold* or *depart*. The partner commits too. Neither sees the other's commitment.
-4. **Respond (advance):** the engine advances one beat and animates it: trains move, the crossing locks or frees, deliveries score.
-5. **Next action:** you read what happened, including whether the partner yielded, and plan the next handover.
+| Pillar | Design consequence |
+|---|---|
+| Cooperation has a visible cost | Yielding uses a beat that could have served the player's own queue. |
+| Consequences are readable | Preview the local route and show resolved movement, deadlines and score changes. |
+| Planning sets the pace | Advance in beats after both decisions. Model speed does not control train physics. |
 
-**[decided]**
+I considered **The Other Adventurer**, a text race involving a rival's notebook, and **Pit Wall**, a racing game with an AI crew chief. The former kept the project too close to my text-adventure midterm. The latter added continuous-control and timing work before I could test the crew chief's value. Semaphore gives me an animated game and one bounded coordination question. A third idea, Market Whispers, repeated too much of the financial setting I had already explored.
 
-## 4. Pillars
+## 4. Core loop
 
-Used to choose between designs. **[decided]**
+1. **Act:** inspect local trains and deadlines, then choose one of four signals. Both sides submit signals independently.
+2. **Respond:** reveal both signals together.
+3. **Interpret:** decide whether the partner needs the crossing more urgently. Select a train, preview the receiving route and commit hold or depart. Commits remain hidden until resolution.
+4. **Respond:** validate both actions, advance one beat and animate movement or waiting.
+5. **Next action:** read the outcome and score changes, then decide what to signal next.
 
-1. **Every handover is a decision.** If a choice about the shared track has an obvious answer every time, it is cut or changed.
-2. **You can read your partner.** Signals and their consequences must be legible on screen. The player should always be able to see what the partner did and work out why.
-3. **Calm, not frantic.** Beats wait for both dispatchers. The tension comes from deadlines and trade-offs, not reaction speed. A *Mini Metro*-like readable map, not *Overcooked* chaos.
+Example: my next train still has five beats of slack. The partner signals Urgent. I can yield now, but I cannot inspect its queue to verify that deadline. I watch the resolved crossing and use that public history when deciding the next handover. This illustrates the intended choice, not a recorded playtest.
 
-## 5. Mechanics
+## 5. First playable rules
 
-### 5.1 Board (first playable) **[proposed]**
+These are **provisional prototype rules**. They provide a complete loop for testing, not a claim that balance is settled.
 
-- One junction. Each side has one entry track, **two waiting positions** and **two destination sidings**. Both sides share **one crossing** in the middle.
-- Each train has a destination siding (marked by colour **and** shape, for colour-blind readability) and a **deadline** in beats.
-- A train going to the far side must cross the shared track. A crossing takes **two beats**.
+### Board, dispatch and receiving
 
-### 5.2 Signals **[decided: four signals with explained meanings]**
+- One board, one bidirectional shared section and two dispatchers. Each side has two waiting positions, one receiving berth and a switch selecting one of two destination sidings.
+- Every train must cross to the opposite side. Its origin dispatcher chooses which waiting train to release. The receiving dispatcher sets its own local switch. This separates the sending and receiving jobs.
+- Destination uses a colour **and** a shape. A train's destination marker becomes public on entering the shared section, giving the receiver a chance to align its switch.
+- A departure occupies the shared section for two simulation beats. A switch committed during those beats determines the receiving route when the train exits. A berth holds a delivered train for one additional beat, then clears automatically.
+- If both sides request departure onto an empty section in the same beat, neither enters. An occupied section also blocks departure. These are legal but unsuccessful departures, not schema errors.
+- If the receiving berth is occupied at the exit beat, the train remains on the shared section and the crossing stays locked. The berth can clear on a later beat. The engine never silently reroutes a train.
+- At each beat, the engine resolves existing berth clearances, existing crossings and deliveries, then admissible new departures. New crossings cannot finish in their departure beat. A newly filled berth cannot clear in that beat.
+- Arrivals use a fixed schedule. If both local waiting positions are full, the arrival remains in an off-board backlog and its deadline continues to approach. The current backlog count is local information. Future arrivals remain hidden.
 
-| Signal | Meaning (shown in the tutorial and on hover) |
+### Signals
+
+| Signal | Explained meaning |
 |---|---|
 | Request crossing | I want to send a train across. |
-| Ready to receive | My side can take a train now. |
-| Please wait | Hold your train this beat. |
+| Ready to receive | I can receive a train. |
+| Please wait | Please hold your departure this beat. |
 | Urgent | My next train is close to its deadline. |
 
-The meanings are fixed and explained up front. The game is about *how you respond* to a signal, not guessing what a symbol means.
+The signal meanings are fixed. Signals advise the other side but do not enforce reservations or guarantee that it will yield. Each round allows one signal. Their shapes and text labels remain readable without colour.
 
-### 5.3 Simultaneous commit and the interlock **[proposed]**
+### Ending and score
 
-- Both dispatchers commit without seeing the other's commitment.
-- A **safety interlock** stops any train entering an occupied crossing. If both sides depart onto an empty crossing in the same beat, **neither moves** that beat. Poor coordination costs time, never an unavoidable crash.
-- The **route preview** shows the path and expected travel time before you commit. It does not reveal the partner's trains or promise the crossing will be free. (From my midterm playtest: a player did not notice that an irreversible move cost them points, so consequences are shown before commitment.)
+Eight trains, four originating on each side, arrive over a shift of at most 24 beats. Finish early only when all eight trains have resolved. A correct delivery by its deadline earns +3, a late correct delivery +1, and a wrong siding −2. A wrong delivery leaves play and does not count as correct. Unresolved trains earn 0 when the shift ends.
 
-### 5.4 Shift, scoring, ending **[proposed; numbers to tune]**
+The initial completion target is six correct deliveries. Score, punctuality and completion are reported separately so six late deliveries are not described as optimal play. A full-information solver will check feasibility before an arrival schedule enters evaluation.
 
-- A shift has **8 trains** (4 per side) on a fixed arrival schedule and ends after **24 beats**.
-- On-time delivery **+3**, late **+1**, wrong siding **−2**, undelivered **0**. Score is shared.
-- Target: **6 correct deliveries** in a shift. **[open]** I will check with a solver that every evaluation schedule allows this before using it.
-- End screen: deliveries, late deliveries, routing mistakes, beats lost to conflicting requests, and the beats where one side yielded.
+## 6. The partner and the comparison
 
-## 6. Dynamics I expect, and how I will check
+The model controls one side's signal, departure and receiving switch. It sees its local trains and deadlines, the public crossing, revealed signals and the last eight rounds of public outcomes. It cannot read the human's queue, deadlines, uncommitted actions, future schedule, seed or source files.
 
-| Expected dynamic | Risk | Check |
-|---|---|---|
-| Players trade turns on the crossing according to urgency | A fixed alternation solves every shift | Solver comparison: alternation vs best play on each schedule. **[open]** |
-| Signals change behaviour | Players ignore signals | Count signal-then-response pairs in traces; playtest interviews |
-| Yielding feels like cooperation | It feels like waiting | Ask playtesters to name a moment the partner helped or hindered them |
+I compare it with a competent scripted dispatcher that uses the same observation and actions. It prioritises its own earliest deadline, routes visible incoming trains correctly, reacts to signals and uses public tie-breaking when both sides want the crossing. It never compares two private deadlines.
 
-## 7. The AI partner (summary; full specification in `CONFIGURATION.md`)
+The hypothesis is that recent interaction history helps the model adjust its yielding and requests in a way the player can understand. A fixed baseline still responds to signals. What it lacks is the ability to revise its dispatch policy from the current exchange. Whether that makes a meaningful difference is the experiment.
 
-- **Job:** dispatch the other side: send one signal, then commit one route and hold-or-depart per round. **[decided]**
-- **Knows:** its own trains, deadlines and sidings; the public crossing state; both signals; a bounded history of this shift. **Never:** my queue, future arrivals, the schedule or engine state. **[decided]**
-- **Validated:** the engine checks every action. An illegal or unparseable action, or a timed-out call, becomes a labelled *safety hold* and is logged separately from the agent's real decisions. **[proposed]**
-- **Scripted baseline:** a competent dispatcher. Earliest-deadline train first, checks the crossing, yields to *Urgent*, fixed tie-break on simultaneous requests. Same information, same actions. **[decided]**
-- **What the player loses with the baseline:** a partner that reconsiders who should go first when the situation changes. After a few shifts you learn its tie-break rule, and your signals stop mattering.
+I will alternate partner order in a small within-player playtest and ask: **When you both wanted the crossing, what did you think your partner would do, what happened, and what did you change next?** I will also ask players to identify a specific helpful or confusing handover. Observations come before my interpretation.
 
-## 8. Controls and feedback **[proposed]**
+## 7. Controls and feedback
 
-- Mouse: click a train to select it; click a siding to set the route (preview appears); *Hold* / *Depart* buttons; four signal buttons. Keyboard shortcuts 1–4 for signals.
-- Feedback: animated trains and switches, the crossing indicator (free / locked / contested), a signal board with both signals, a per-beat log line ("Partner held its train for your Urgent"), the score, and a beat counter.
+Click a local waiting train, select a receiving siding and commit Hold or Depart. Use buttons or keys 1–4 to signal. The preview shows only local routing consequences and travel-time assumptions. It cannot predict hidden commitments or promise an on-time arrival.
 
-## 9. Presentation **[proposed]**
+The screen shows the current beat, score changes, crossing occupancy, both signals and resolved public actions. Feedback describes events, such as “Partner held. Your train departed.” It does not claim to know why a model acted. A model explanation is not ground truth about its reasoning.
 
-2D browser game. Flat, readable shapes in a *Mini Metro*-like style. Minimal sound: switch clicks and arrival chimes from a CC0 pack. No narrative beyond a one-screen tutorial.
+My midterm playtester entered an irreversible ending without understanding the points left behind. I carried that lesson into route previews and visible score changes. I have not yet run a Semaphore playtest.
 
-## 10. Scope
+## 8. Scope and cuts
 
-- **Included:** one junction, one shared crossing, four signals, the model partner, the scripted partner, 3 tuning schedules and 2 held-out schedules, route preview, end screen, traces.
-- **Excluded:** human-vs-human networking, procedural maps, free-text or voice chat, a campaign, learning across games, mobile layout, music.
-- **Cut first, in order:** (1) smooth animation (trains jump between cells); (2) end-screen statistics beyond the score; (3) the second waiting position (one per side); (4) six trains instead of eight.
+**Included by G2/G3:** one junction, four signals, the complete shift, route preview, a scripted partner, a deployed model partner, traces, five schedules and an external playtest. A flat 2D browser presentation is sufficient.
 
-## 11. Open questions
+**Excluded:** human networking, procedural maps, a campaign, free-text or voice chat, cross-shift learning, mobile optimisation and music. No commercial game assets are planned.
 
-1. **[open]** Is the shared crossing enough to make yielding interesting, or does a fixed alternation always win? *Answer by:* paper or greybox test and solver comparison in week 1.
-2. **[open]** Are 24 beats and 8 trains the right length? *Answer by:* the first playtest.
-3. **[open]** Does the model partner beat the scripted one on held-out schedules, or only feel different? *Answer by:* the automated comparison plus within-player playtests.
-4. **[open]** Should the agent see the partner's last few commitments after they resolve? Currently yes, as public history. *Answer by:* the Design Lead review before G2.
-5. **[open]** Tech stack (see `CONFIGURATION.md` §4). *Answer by:* my decision before the first build task.
+**Cut first:** smooth movement in favour of discrete movement, optional sound, extra end-screen charts, then eight trains down to six with retested schedules. Keep the score summary, knowledge boundary, failure handling, baseline and evaluation. Do not add another shared resource to rescue an unproven loop before G2.
 
-## 12. References and attribution
+## 9. Open questions
 
-| Reference | Specific moment or mechanic | What I borrow / change | Terms |
+| Question | Owner and next evidence |
+|---|---|
+| Does yielding create a meaningful choice? | Me, Design Lead support: paper test and alternation comparison by Nov 18. |
+| Can receiving routes add useful decisions without confusion? | Me: first greybox playtest. Simplify receiving if necessary. |
+| Are eight trains and 24 beats feasible and readable? | Tech Lead solver check, then human shift timing. |
+| Does the model improve coordination or only produce variation? | BI comparison and external playtests before G2/G3. |
+| Can a browser session use the deployed model safely? | Tech Lead authentication/session spike by Nov 20. |
+
+## 10. References and attribution
+
+I use these as design references. No referenced commercial art, maps, dialogue, code or branding is included. Specific links are in [SOURCES.md](SOURCES.md).
+
+| Reference | Specific mechanic or moment | Borrowed principle and deliberate change | Reuse position |
 |---|---|---|---|
-| *Hanabi* (Antoine Bauza, 2010) | Hints are the only way to share hidden information | Borrow: communication restricted to a few typed messages. Change: signals are free each round, not rationed tokens; no cards. | Game rules are not copyrightable; no name, art or text used. |
-| *Keep Talking and Nobody Explodes* (Steel Crate Games, 2015) | One player sees the bomb, the other the manual | Borrow: split information forces communication. Change: an AI partner; both sides have a job. | Commercial; nothing reused. |
-| *Mini Metro* (Dinosaur Polo Club, 2015) | Stations and lines as flat, colour-coded shapes | Borrow: visual readability principles. Change: my own shapes and layout. | Commercial; no assets used. |
-| *Overcooked* (Ghost Town Games, 2016) | Co-op under time pressure | Borrow: interdependent co-op. Change: turn-based beats instead of real time (Pillar 3). | Commercial; nothing reused. |
-| Hanabi Challenge (Bard et al., *Artificial Intelligence*, 2020) | Theory of mind under imperfect information | Motivates the question, not a claim that the agent will reason like a person. | Research paper; cited. |
-| Overcooked-AI (Carroll et al., NeurIPS 2019) | Agents that coordinate with themselves can struggle with humans | Why I compare with a competent scripted partner and test with real players. | Paper cited; its MIT-licensed code is not used. |
-| Single-line railway working and interlocking | One train on a shared section; interlocks prevent conflicts | Borrow: the interlock rule. | Real-world practice; no source text used. |
-| My Zork midterm (`midterms/rohitr4547`) | Bounded player interface, runner with step/call/timeout limits, evaluation with held-out cases | Reuse the patterns (and possibly the model adapter). | My own work, MIT. |
-| Kenney sound and UI packs (planned) | Clicks and chimes | Use as-is. | CC0; credited anyway. |
+| Hanabi, Antoine Bauza | Restricted hints communicate under imperfect information | Four explained signals. No cards or hint-token economy. | Reference only. No game materials copied. |
+| Keep Talking and Nobody Explodes, Steel Crate Games | The defuser sees the bomb while experts consult the manual | Split observations. Both dispatchers also act on their own side. | Commercial reference, no assets/code copied. |
+| Mini Metro, Dinosaur Polo Club | Station shapes and simple lines make routes legible | Original track layout with colour-and-shape destinations. Fixed junction rather than network construction. | Commercial reference, no visual assets copied. |
+| Overcooked, Ghost Town Games | Partners share bottlenecks and divide tasks | Shared crossing and receiving duty. Planning beats replace real-time movement. | Commercial reference, no assets/code copied. |
+| Bard et al., The Hanabi Challenge | Cooperative play with imperfect information | Motivates the coordination question. No claim of human-like understanding. | Research citation, no code reused. |
+| Carroll et al., NeurIPS 2019 | Self-play coordination does not guarantee human compatibility | Test with humans and a competent baseline. | Research citation. Overcooked-AI code is not reused. |
+| My Zork midterm | Bounded observations, logged failures and frozen evaluation | Reuse the approach. Inspect any adapter's actual license before copying code. | No code copied at G1. Preserve required notices if later reused. |
+
+Sound is optional and not sourced yet. If a CC0 pack is added, record the exact pack URL, license and included files before release. Semaphore's conflict rule is a simplified game design inspired by shared railway sections, not a realistic railway safety model.

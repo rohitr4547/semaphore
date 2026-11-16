@@ -1,18 +1,20 @@
-AI use: Claude and ChatGPT helped me research related games, structure the documents and deck, and revise the wording. The concept, scope and the decisions marked as mine in the Project Plan are mine.
+# Semaphore
 
-**Subject:** Semaphore
+AI use: Claude and ChatGPT helped me explore the concept and draft the initial documents. ChatGPT helped revise the deck, script and supporting documents. I selected the direction and remain responsible for the design and evidence.
 
-**Semaphore** is a small animated co-op game. You and an AI partner run opposite sides of a rail junction, share one stretch of track, and can only talk through four signals. The game comes down to one moment, over and over: do I send my train now, or let my partner go first?
+Semaphore is an animated co-op railway puzzle where you and an AI partner share one track and communicate through four signals. I want to test whether deciding when to yield feels like working with a partner, rather than waiting for a machine.
 
-- Recording (about 4.5 min): [link]
-- Deck: https://claude.ai/artifact/QL1QoyEEbc8uGjKhUK5ZWK
-- Initial GDD: https://github.com/rohitr4547/semaphore/blob/main/docs/GDD.md
-- Initial Configuration Document (agent spec, budgets, evaluation plan, role coverage): https://github.com/rohitr4547/semaphore/blob/main/docs/CONFIGURATION.md
-- Initial Project Plan (gate dates, first tasks through G2, my decisions vs my agents' recommendations): https://github.com/rohitr4547/semaphore/blob/main/docs/PROJECT-PLAN.md
-- Risk Profile and Initial Risk Register: https://github.com/rohitr4547/semaphore/blob/main/docs/RISKS.md
+**Submission links**
 
-**Agent hypothesis.** A partner that chooses its signal and whether to hold or depart, from its own side's view only, should make players feel it is cooperating: changing who goes first when deadlines change. I compare it with a competent scripted dispatcher that has the same view and actions. The playtest question: when you both wanted the crossing, could you tell why your partner went or waited, and did it change your next signal?
+- Recording: **ADD THE VIEWABLE RECORDING URL BEFORE POSTING.**
+- [Deck](https://github.com/rohitr4547/semaphore/blob/main/presentation/Semaphore-G1-Concept-Pitch.pptx)
+- [Initial GDD](https://github.com/rohitr4547/semaphore/blob/main/docs/GDD.md)
+- [Initial Configuration Document](https://github.com/rohitr4547/semaphore/blob/main/docs/CONFIGURATION.md)
+- [Initial Project Plan](https://github.com/rohitr4547/semaphore/blob/main/docs/PROJECT-PLAN.md)
+- [Risk Profile](https://github.com/rohitr4547/semaphore/blob/main/docs/RISKS.md)
 
-**Decision requested.** Approval to build the greybox prototype (engine, both partners, browser client, an automated comparison on held-out schedules and one external playtest) by the G2/G3 review on November 30. A Hold would need evidence that the crossing creates real choices, or a smaller scope.
+**Agent hypothesis.** A dispatcher that uses recent exchanges may make more understandable trade-offs than a fixed policy. Both get the same local view, signals and actions. My baseline prioritises its own deadlines, responds to signals and uses public alternating priority. The playtest asks what a player expected the partner to do, what happened and what they changed next. A scripted win is a valid result.
 
-**On notes.** I missed the November 9 pitch round, so I had no group notes. The note I built on is from my midterm playtest: a player did not notice what an irreversible move cost them, so every route here is previewed before you commit. Open questions are marked in the GDD.
+**Decision requested.** Approval for a bounded greybox: engine, both partners, deployed model action, reserved comparison and an external playtest. A Hold would require clearer handover decisions, feasible schedules or a reduced deployment plan. Open questions and provisional dates are marked in the documents.
+
+**Revision note.** I missed the November 9 pitch round and have no group notes to claim. My midterm playtest showed that an irreversible action could conceal lost points. Here I preview local routes and show resolved score changes. The current consistency review also removed a baseline rule that would have needed hidden deadlines.

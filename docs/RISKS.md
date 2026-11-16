@@ -1,29 +1,33 @@
-AI use: Claude and ChatGPT helped me brainstorm related games, draft and structure this document and revise its wording. The design decisions marked as mine are mine.
+# Semaphore: Initial Risk Profile
 
-# Semaphore: Risk Profile and Initial Risk Register
+AI use: Claude and ChatGPT helped me explore concepts and draft the initial documents. ChatGPT helped review this revision for clarity, consistency and rubric coverage. I remain responsible for the design, evidence and final submission.
 
-**Status: Initial (G1).**
+**Gate 1, 15 November 2026.** These are my current assessments. No Semaphore playtest or deployment measurement exists yet.
 
-## Six-dimension Risk Profile
+## Six dimensions
 
-| Dimension | Rating | Evidence | Mitigation (for High) |
+| Dimension | Rating | Evidence and uncertainty | Mitigation / next check |
 |---|---|---|---|
-| IP / Concept | Medium | Original concept; references are attributed and no assets are reused (GDD §12). Unproven: whether yielding feels like cooperation rather than waiting. | – |
-| Business / Audience | Medium | Co-op puzzle players are a clear group, but I have no player evidence yet. Classmates and friends can playtest in a browser. | – |
-| Technology | Medium | Proven in my midterm: model calls to `gemini-3.5-flash-lite`, a bounded player interface, timeouts and failed-call accounting. I have built browser games before (Slot Racer). Unverified: calling the model from a Cloudflare Worker. | – |
-| Team | Medium | Agent roles reuse artifacts that worked in my midterm (implementation agent, rule-change skill, read-only reviewer). New: Art Lead and release skills. I work alone, so my own capacity is the limit. | – |
-| Genre / Mechanics | **High** | The central mechanic (simultaneous commit on one shared crossing, four signals) is untested. A fixed alternation might solve every shift, which would make signals pointless. | Paper prototype (task 1) and a solver comparison of alternation vs best play (task 3) before building the client; change traffic rules if alternation wins. |
-| Timeline | **High** | A deployed model call with a forced-timeout fallback is due Nov 23, and a first playable with a working agent and an external playtest at the combined G2/G3 review on Nov 30 (recording Nov 28), with Thanksgiving in between: about two weeks. | Build in the order engine → scripted partner → agent → client; greybox before polish; the cut list in GDD §10. |
+| IP / Concept | Medium | The setting and proposed layouts are original. Commercial references are named, but the shared-crossing experience is untested. No third-party assets/code included. | Keep provenance in SOURCES.md. Review any later reuse before copying. Paper test checks concept. |
+| Business / Audience | Medium | Co-op puzzle players are the intended audience. No evidence yet that they enjoy negotiating with this partner. No commercial revenue assumption. | Recruit external testers, ask for a concrete helpful/confusing handover. |
+| Technology | Medium | I have prior model-call and browser-game experience. Server authentication, state isolation and latency in this stack are unverified. | Deployed spike by Nov 20. Escalate to High if it fails. A local-only model does not close the checkpoint. |
+| Team | Medium | I own delivery, supported by coding/review agents. Art and release instructions are new. My time remains the bottleneck. | One task at a time, independently reviewed changes, limited daily commitments. |
+| Genre / Mechanics | **High** | A fixed alternating dispatcher may perform as well as negotiation. Receiving duties could create confusion rather than choice. | Paper test by Nov 18, then solver/alternation comparison. Simplify traffic or receiving rules before adding features. |
+| Timeline | **High** | Deployed checkpoint Nov 23 and proposed G2/G3 recording Nov 28 leave little time, with reduced Thanksgiving capacity. Current task estimates exceed a safe solo allowance. | Deliver a thin vertical slice first, budget 30 focused hours through Nov 27, leave Nov 28 for recording. Cut animation/sound/statistics before evaluation. |
 
-**Do the Highs share a cause?** Yes. Both depend on the same unproven core loop: if the shared-crossing decision is not interesting, the time spent on everything else is wasted. That is why the first two tasks test the loop on paper and with a solver before any client work.
+**Shared cause:** the two High ratings overlap because the core coordination loop is still unproven. Timeline also has independent causes: deployment uncertainty and limited solo capacity. Early mechanics tests reduce both Highs, but do not remove the deployment dependency.
 
-## Initial Risk Register
+## Initial register
 
-| Risk | Evidence or trigger | Impact / likelihood | Role | Mitigation | Contingency | Next check |
-|---|---|---|---|---|---|---|
-| If a fixed alternation solves every schedule by task 3, signals have no purpose | Solver shows no gap between alternation and best play | High / Medium | Design Lead | Schedules with deadline pressure and blocked sidings | Add a second shared resource (a passing loop) or asymmetric deadlines | Task 3 |
-| If the model partner leaks or asks for hidden information | Adversarial test, trace review | Medium / Low | QA | `viewFor` is the only path to the agent; test that the hidden queue is absent | – | Task 6 |
-| If the Worker cannot call the model by task 5 | Spike fails | Medium / Medium | Tech Lead | Try both authentication routes | Run the model partner from the Node harness only; the web build uses the scripted partner | Task 5 |
-| If model latency makes rounds feel slow | Added waiting > 3 s median in the first build | Medium / Low | Tech Lead | Start calls when each phase opens | Shorter prompt; fewer history rounds | Task 7 |
-| If I cannot recruit an external playtester before G2 | No session booked by Nov 25 | High / Low | Producer | Ask classmates at the G1 review | Remote session over screen share | Nov 25 |
-| If the model partner performs no better than the scripted one | Automated comparison | Low for the project / Medium | BI | Report it as a result | The game ships with whichever partner players prefer | Task 8 |
+| Risk and trigger | Owner | Mitigation | Contingency / checkpoint |
+|---|---|---|---|
+| Alternation matches the full-information reference on every development schedule | Me, Design | Test contrasting arrival/deadline patterns and receiving pressure. Compare fairly without seeking model wins. | If no trade-off emerges, simplify and re-pitch a Hold. Do not add a second resource before G2. Nov 18–20. |
+| Deployed authenticated request or session isolation fails | Me, Tech | Spike before full client. Test two concurrent sessions and a forced timeout. | Time-box Worker route, consider Node deployment if course permits. Unresolved by Nov 21 means escalation/Hold. |
+| API waiting interrupts planning | Me, Tech | Start each call when its phase opens. Bound history and discard stale replies. | Target p95 ≤3 s/call and ≤2 s median extra wait. If missed, simplify prompts/UI or reduce beats after feasibility checks. |
+| Player cannot interpret a hold or request | Me, Design | Fixed signal meanings, event log, visible preview and tutorial. | Paper/greybox playtest before polish. Remove ambiguous cues rather than invent explanations. |
+| No external tester booked by Nov 24 | Me, Producer | Invite classmates at the G1 review. | Remote screen-share test on Nov 25–27. Disclose if it cannot happen. |
+| Model does not improve results or experience | Me, BI | Competent baseline, paired schedules and honest reporting. | Keep the model evidence for the course. Choose the preferred shipping partner after reporting the result. |
+| Prompt/output usage exceeds the estimate | Me, Tech | Token caps and request-cost reservation. Keep unknown timeout usage separate. | $3 working target, stop new paid calls at $5 threshold, disclose billing uncertainty. |
+| Hidden data leaks through view, legal list, error or trace | Me, QA | State-difference boundary tests, allowlists and server authority. | Block live play until fixed. Re-run affected evidence. |
+
+The full Risk Register moves into the production plan after G1. Ratings change with evidence, not because a task is marked complete.

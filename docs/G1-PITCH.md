@@ -1,83 +1,61 @@
-AI use: Claude and ChatGPT helped me brainstorm related games, draft and structure this document and revise its wording. The design decisions marked as mine are mine.
+# Semaphore: G1 recording script
 
-# Semaphore: G1 Concept pitch (deck content and recording script)
+AI use: Claude and ChatGPT supported concept development and drafting. ChatGPT helped revise this deck and script. I remain responsible for the final design and presentation.
 
-Target length: about 4 min 20 s at a relaxed pace (≈ 620 words). Each slide lists what is on screen, then what I say. Edit the spoken lines into your own words before recording.
+Target: **4 minutes 45 seconds**, including brief pauses. 676 spoken words, approximately 142 words per minute over the full recording. The same narration appears in the deck's speaker notes. Sources in notes are not spoken. Rehearse once and adjust pauses to stay within 3–5 minutes.
 
----
+The deck is a concept presentation, not gameplay footage. Keep the concept/proposed labels visible. Use your own natural delivery. Avoid reading tables row by row.
 
-## Slide 1: Title (≈ 10 s)
+## Slide 1: Semaphore (0:00–0:20)
 
-**On screen:** *Semaphore*, a two-dispatcher rail junction. "G1 Concept · rohitr4547 · COMS E6998 · November 2026". A simple drawing of two sides of a junction sharing one crossing.
+Semaphore is an animated co-op game where you and an AI partner dispatch trains across one shared track, and you feel the satisfaction of getting a difficult handover right. This is a Gate 1 concept. I am asking to test the idea, and there is no playable build yet.
 
-**Say:** "This is Semaphore, my final-project concept, and I'm asking for approval to build a prototype."
+## Slide 2: The handover (0:20–0:40)
 
-## Slide 2: The X (≈ 20 s)
+Imagine my train has five beats of slack, but my partner signals Urgent. I can hold and let it through, without seeing its queue. I am designing for co-op puzzle players motivated by fellowship and mastery. If it works, a player yields voluntarily and can explain that choice afterwards.
 
-**On screen:** "Semaphore is a small animated co-op game in which you and an AI partner run opposite sides of a rail junction, sharing one stretch of track and talking only through four signals, and you feel the satisfaction of getting a difficult handover right."
+## Slide 3: Core loop (0:40–1:05)
 
-**Say:** read the X, then: "The whole game is about one shared crossing and the moment you decide whether to go or let your partner go first."
+We each send one explained signal, then reveal both. We interpret the signals and commit our departures and receiving switches privately. The engine advances one beat and shows what happened. We read the result and choose the next signal. A contested departure costs a beat. The interlock prevents a collision, so the pressure comes from delivery deadlines.
 
-## Slide 3: Player and motivation (≈ 25 s)
+## Slide 4: Pillars and alternatives (1:05–1:30)
 
-**On screen:** "For co-op puzzle players (*Overcooked*, *Keep Talking*, *Hanabi*). Motivation: Fellowship, then Challenge and mastery. **If it works:** a player holds their own train so the partner's urgent train can cross, unprompted, and can say why afterwards."
+My pillars are meaningful cooperation, readable consequences and time to plan. I considered a text-adventure race, but wanted to move beyond my midterm. A racing crew chief added continuous timing work before I could test its value. I selected Semaphore because one shared crossing gives me an animated, manageable way to study cooperation.
 
-**Say:** "The motivation is fellowship, through interdependence: the goal is hard to reach alone. My observable hypothesis is that a playtester holds their own train, without being told to, so the partner's urgent train can cross, and can explain why afterwards."
+## Slide 5: References and reuse (1:30–1:55)
 
-## Slide 4: Core loop (≈ 25 s)
+Hanabi informs restricted communication. Keep Talking informs split information, and Mini Metro informs readable routes. I change these into simultaneous dispatch decisions with original graphics. No commercial assets or code are copied. The Overcooked-AI research motivates testing with people, because strong self-play does not guarantee human coordination. References and reuse positions are linked in the GDD.
 
-**On screen:** the loop as a cycle: **Signal** (both send one of four signals) → **Reveal** → **Commit** (choose a train, route with preview, hold or depart; hidden from the partner) → **Advance** (one beat; trains move; interlock; score) → read the result → next signal.
+## Slide 6: Systems and knowledge boundary (1:55–2:25)
 
-**Say:** "Each round, we both send a signal and see each other's. Then we each commit a route and choose hold or depart, without seeing the other's choice. The engine advances one beat and animates it. I read whether my partner went or waited, and plan the next handover. Beats wait for both of us, so it's calm, not frantic."
+The server owns both queues and the future schedule. It builds a separate view for each side. The model receives its own trains, the public crossing, revealed signals and eight rounds of filtered history. It never receives my queue or hidden commitment. Both sides submit through validation. Failed model commits become labelled safety holds. Late responses cannot change a later beat.
 
-## Slide 5: Pillars and concepts considered (≈ 30 s)
+## Slide 7: Agent hypothesis (2:25–2:55)
 
-**On screen:** Pillars: (1) Every handover is a decision. (2) You can read your partner. (3) Calm, not frantic. Considered: *The Other Adventurer* (text race against a rival with a notebook), *Pit Wall* (AI crew chief for a slot-car racer), *Market Whispers* (AI tipsters with hidden motives).
+The model chooses signals, departures and receiving routes within that boundary. I hypothesise that it can adjust to recent exchanges in ways players understand. The baseline is competent: earliest local deadline, signal responses and public alternating priority. It cannot revise that policy from experience. I will compare both, alternate playtest order and ask what the player expected, what happened and what they changed next.
 
-**Say:** "Three pillars guide my choices. I considered three other concepts. The text race was text-only, and a rival that studies you is the most common agent on the board. Pit Wall needed decisions faster than a 1.5-second model call. Market Whispers was too close to a classmate's project. Semaphore won because a cooperative partner is less explored, turn-based beats tolerate model latency, and it's easy to compare with a scripted dispatcher."
+## Slide 8: Prototype scope (2:55–3:15)
 
-## Slide 6: References and attribution (≈ 25 s)
+The prototype has one junction, four signals, eight trains and up to twenty-four beats. Both partners, route preview and the comparison are included. Networking, a campaign and cross-game learning are excluded. I cut smooth animation and optional sound first. The boundaries and external playtest stay. The numbers remain provisional until the feasibility check.
 
-**On screen:** the GDD §12 table, shortened: *Hanabi* (restricted hints under hidden information; rules only, no art or name), *Keep Talking* (split information; nothing reused), *Mini Metro* (readable flat lines and stations; style principles only, my own shapes), *Overcooked* (interdependent co-op; turn-based instead of real time), Hanabi Challenge and Overcooked-AI papers, railway interlocking, my own Zork midterm code (MIT), Kenney CC0 sounds.
+## Slide 9: Budgets and uncertainty (3:15–3:40)
 
-**Say:** "From Hanabi I borrow communication limited to a few typed messages, but signals aren't rationed. From Mini Metro, readability principles, with my own shapes. From Overcooked, interdependence, but turn-based. The Overcooked-AI research found agents that coordinate with themselves struggle with people, which is why I test with real players. No commercial assets are reused; sounds are CC0."
+At forty-eight calls, I estimate three cents per shift and nine cents per three-shift session, using the dated prices and token assumptions shown here. My midterm means were around one and a half seconds per call. Semaphore is unmeasured. I target a three-second p95, with a six-second timeout. Two failed phases can add twelve seconds. Prompt growth and deployment latency are the biggest budget uncertainties.
 
-## Slide 7: Systems diagram (≈ 30 s)
+## Slide 10: Risk Profile (3:40–4:05)
 
-**On screen:** `docs/systems-diagram.svg`.
+I rate concept, audience, technology and team Medium. Mechanics and timeline are High. They share the risk that the crossing may not create interesting choices. I will test that on paper and against fixed alternation before polishing the client. Timeline also depends on deployment and my solo capacity. The fallback is a smaller prototype, rather than another new mechanic.
 
-**Say:** "The engine owns the world state, including both queues and the future schedule. I see my side. The agent gets one filtered view of its own side: its trains and deadlines, the crossing, both signals and recent history. The dashed frame is its knowledge boundary: it never sees my queue, the schedule or the seed. Every action from either of us goes through validation, and an invalid or timed-out agent call becomes a labelled safety hold, never a made-up move."
+## Slide 11: Work through the next gate (4:05–4:25)
 
-## Slide 8: Agent hypothesis (≈ 35 s)
+First I test the handover and deploy one isolated model call. Then I build the engine, baseline and greybox, followed by the reserved comparison and an external playtest. I own the decisions. Agents support implementation, design and independent review. The combined G2 and G3 review is on November 30.
 
-**On screen:** "**Behaviour:** the partner chooses its signal and whether to hold or depart, from its own side's view. **Experience:** players feel the partner cooperates, reconsidering who should go first when priorities change. **Baseline:** a competent scripted dispatcher: earliest deadline first, yields to Urgent, fixed tie-break. Same view, same actions. **Test:** each playtester plays one shift with each partner, order alternated. *When you both wanted the crossing, could you tell why your partner went or waited, and did it change what you signalled next?* **Lost with the baseline:** after a few shifts you learn its tie-break, and your signals stop mattering."
+## Slide 12: Decision requested (4:25–4:45)
 
-**Say:** read it, then: "If the scripted dispatcher does just as well, that's a real result, and I'd ship whichever partner players prefer."
+I am asking to build this bounded prototype and test whether the model adds useful cooperation. A Hold means returning with a clearer handover, feasible schedules or a smaller deployment plan. I selected the cooperative direction. Agents recommended mechanics and stack options, which remain provisional. If the scripted partner works as well, I will report that result.
 
-## Slide 9: Scope (≈ 20 s)
+## Recording setup
 
-**On screen:** Included: one junction, one crossing, four signals, model and scripted partners, 3 tuning + 2 held-out schedules, route preview, end screen, traces. Excluded: networking, procedural maps, free-text or voice, campaign, cross-game learning, mobile, music. Cut first: smooth animation → end-screen stats → one waiting position → six trains.
+Use the slide show at 16:9 and record your voice with the slides visible. Keep the pointer away from text. On slide 2, pause briefly at the choice to yield. On slide 6, trace the filtered-view path, then the validation path. Leave the risk table visible while explaining the two Highs. Finish the decision sentence before stopping.
 
-**Say:** "Small on purpose: one junction and one partner. If time runs short, I cut animation polish first, never the comparison."
-
-## Slide 10: Budgets (≈ 20 s)
-
-**On screen:** 48 calls per shift; ≈ 1,500 input + 60 output tokens per call; **≈ $0.03 per shift, ≈ $0.09 per three-shift session** at $0.30 / $2.50 per million tokens (Vertex, read Nov 4); **≈ 1.5 s per call** (measured in my midterm), 6 s timeout; added waiting ≈ 0 s median because calls run while the player decides. Evaluation before G2 ≤ $2.
-
-**Say:** summarise the numbers and say where they come from.
-
-## Slide 11: Risk Profile (≈ 25 s)
-
-**On screen:** IP/Concept Medium · Business/Audience Medium · Technology Medium · Team Medium · **Genre/Mechanics High** · **Timeline High**. "Both Highs share one cause: the core loop is unproven." Mitigation: paper prototype and a solver check (does fixed alternation always win?) before building the client; greybox before polish; cut list.
-
-**Say:** "My two High risks share a cause: if choosing who uses the crossing isn't interesting, everything else is wasted. So the first week tests exactly that, on paper and with a solver, before I build the client."
-
-## Slide 12: Decision requested (≈ 20 s)
-
-**On screen:** "**Approve:** build the greybox prototype: engine, scripted and model partners, browser client, automated comparison on held-out schedules, and one external playtest by G2. **A Hold would need:** evidence that the crossing creates real choices (a paper test or solver result), or a smaller scope." Small print: "Decisions marked as mine vs my agents' recommendations: `docs/PROJECT-PLAN.md`."
-
-**Say:** "I'm asking for approval to build the greybox prototype and run the comparison and one external playtest by G2. If it's a Hold, I'd expect to come back with the paper-test and solver evidence, or a smaller scope. Thank you."
-
----
-
-**Recording checklist:** 3–5 minutes; screen shows the deck; say "Gate 1", "pillars", "scripted baseline", "Risk Profile" (course vocabulary); no names or data of playtesters; upload unlisted and set to Columbia viewers.
+Before posting, watch the exported recording, check audio and text, confirm its actual duration and test viewer access. Add the real recording URL to README and G1-POST. Do not describe the deck as a recorded submission until that is done.
